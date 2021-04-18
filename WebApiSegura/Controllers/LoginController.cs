@@ -57,10 +57,10 @@ namespace WebApiSegura.Controllers
             using (SqlConnection sqlConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["SIUUU"].ConnectionString))
             {
                 SqlCommand sqlCommand = new SqlCommand(@"SELECT USUARIO_ID, NOMBRE, APELLIDOS, 
-                                                        IDENTIFICACION, TELEFONO, FEC_NAC, DIRECCION, EMAIL, PASSWORD
+                                                        IDENTIFICACION, TELEFONO, FEC_NAC, DIRECCION, EMAIL, PASSWORD, ROL
                                                         FROM USUARIO
-                                                        WHERE USUARIO_ID = @USUARIO_ID", sqlConnection);
-                sqlCommand.Parameters.AddWithValue("@USUARIO_ID", loginRequest.Username);
+                                                        WHERE IDENTIFICACION = @IDENTIFICACION", sqlConnection);
+                sqlCommand.Parameters.AddWithValue("@IDENTIFICACION", loginRequest.Username);
 
                 sqlConnection.Open();
 

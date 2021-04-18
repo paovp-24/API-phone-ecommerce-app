@@ -14,3 +14,4 @@ namespace WebApiSegura.Models
         public int CANT_PRODUCTOS { get; set; }
         public string ESTADO { get; set; }
     }
+}
