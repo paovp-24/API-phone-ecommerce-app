@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Data.SqlClient;
 using System.Net;
@@ -15,19 +16,51 @@ namespace WebApiSegura.Controllers
     [RoutePrefix("api/login")]
     public class LoginController : ApiController
     {
-        [HttpGet]
-        [Route("echoping")]
-        public IHttpActionResult EchoPing()
-        {
-            return Ok(true);
-        }
 
         [HttpGet]
-        [Route("echouser")]
-        public IHttpActionResult EchoUser()
+        [Route("allUser")]
+        public IHttpActionResult GetAll()
         {
-            var identity = Thread.CurrentPrincipal.Identity;
-            return Ok($" IPrincipal-user: {identity.Name} - IsAuthenticated: {identity.IsAuthenticated}");
+            List<Usuario> usuarios = new List<Usuario>();
+            try
+            {
+                using (SqlConnection sqlConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["SIUUU"].ConnectionString))
+                {
+                    SqlCommand sqlCommand = new SqlCommand(@"SELECT USUARIO_ID, NOMBRE, APELLIDOS, IDENTIFICACION, TELEFONO, DIRECCION, EMAIL, PASSWORD, ROL FROM USUARIO", sqlConnection);
+
+                    sqlConnection.Open();
+
+                    SqlDataReader sqlDataReader = sqlCommand.ExecuteReader();
+
+                    while (sqlDataReader.Read())
+                    {
+
+                        Usuario usuario = new Usuario()
+                        {
+                        USUARIO_ID = sqlDataReader.GetInt32(0),
+                        NOMBRE = sqlDataReader.GetString(1),
+                        APELLIDOS = sqlDataReader.GetString(2),
+                        IDENTIFICACION = sqlDataReader.GetString(3),
+                        TELEFONO = sqlDataReader.GetInt32(4),
+                        DIRECCION = sqlDataReader.GetString(5),
+                        EMAIL = sqlDataReader.GetString(6),
+                        PASSWORD = sqlDataReader.GetString(7),
+                        ROL = sqlDataReader.GetInt32(8)
+
+                    };
+                        usuarios.Add(usuario);
+                    }
+
+                    sqlConnection.Close();
+                }
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            return Ok(usuarios);
         }
 
         [HttpPost]
@@ -40,7 +73,7 @@ namespace WebApiSegura.Controllers
             Usuario usuarioValidado = ValidarUsuario(login);
             if (!string.IsNullOrEmpty(usuarioValidado.IDENTIFICACION))
             {
-                var token = TokenGenerator.GenerateTokenJwt(login.Username);
+                var token = TokenGenerator.GenerateTokenJwt(login.Correo);
                 usuarioValidado.CadenaToken = token;
                 return Ok(usuarioValidado);
             }
@@ -48,45 +81,6 @@ namespace WebApiSegura.Controllers
             {
                 return Unauthorized();
             }
-        }
-
-        private Usuario ValidarUsuario(LoginRequest loginRequest)
-        {
-            Usuario usuario = new Usuario();
-
-            using (SqlConnection sqlConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["SIUUU"].ConnectionString))
-            {
-                SqlCommand sqlCommand = new SqlCommand(@"SELECT USUARIO_ID, NOMBRE, APELLIDOS, 
-                                                        IDENTIFICACION, TELEFONO, FEC_NAC, DIRECCION, EMAIL, PASSWORD, ROL
-                                                        FROM USUARIO
-                                                        WHERE IDENTIFICACION = @IDENTIFICACION", sqlConnection);
-                sqlCommand.Parameters.AddWithValue("@IDENTIFICACION", loginRequest.Username);
-
-                sqlConnection.Open();
-
-                SqlDataReader sqlDataReader = sqlCommand.ExecuteReader();
-
-                while (sqlDataReader.Read())
-                {
-                    if (loginRequest.Password.Equals(sqlDataReader.GetString(8)))
-                    {
-                        usuario.USUARIO_ID = sqlDataReader.GetInt32(0);
-                        usuario.NOMBRE = sqlDataReader.GetString(1);
-                        usuario.APELLIDOS = sqlDataReader.GetString(2);
-                        usuario.IDENTIFICACION = sqlDataReader.GetString(3);
-                        usuario.TELEFONO = sqlDataReader.GetInt32(4);
-                        usuario.FEC_NAC = sqlDataReader.GetDateTime(5);
-                        usuario.DIRECCION = sqlDataReader.GetString(6);
-                        usuario.EMAIL = sqlDataReader.GetString(7);
-                        usuario.PASSWORD = sqlDataReader.GetString(8);
-                        usuario.ROL = sqlDataReader.GetInt32(9);
-
-                    }
-                }
-
-                sqlConnection.Close();
-            }
-            return usuario;
         }
 
         [HttpPost]
@@ -102,19 +96,18 @@ namespace WebApiSegura.Controllers
                 using (SqlConnection sqlConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["SIUUU"].ConnectionString))
                 {
                     SqlCommand sqlCommand = new SqlCommand(@"INSERT INTO USUARIO (NOMBRE, APELLIDOS, 
-                                                        IDENTIFICACION, TELEFONO, FEC_NAC, DIRECCION, EMAIL, PASSWORD,ROL)
+                                                        IDENTIFICACION, TELEFONO, DIRECCION, EMAIL, PASSWORD,ROL)
                                                         VALUES(@NOMBRE, @APELLIDOS, 
-                                                       @IDENTIFICACION, @TELEFONO, @FEC_NAC, @DIRECCION, @EMAIL, @PASSWORD,@ROL)", sqlConnection);
+                                                       @IDENTIFICACION, @TELEFONO, @DIRECCION, @EMAIL, @PASSWORD,@ROL)", sqlConnection);
 
                     sqlCommand.Parameters.AddWithValue("@NOMBRE", usuario.NOMBRE);
                     sqlCommand.Parameters.AddWithValue("@APELLIDOS", usuario.APELLIDOS);
                     sqlCommand.Parameters.AddWithValue("@IDENTIFICACION", usuario.IDENTIFICACION);
                     sqlCommand.Parameters.AddWithValue("@TELEFONO", usuario.TELEFONO);
-                    sqlCommand.Parameters.AddWithValue("@FEC_NAC", usuario.FEC_NAC);
                     sqlCommand.Parameters.AddWithValue("@DIRECCION", usuario.DIRECCION);
                     sqlCommand.Parameters.AddWithValue("@EMAIL", usuario.EMAIL);
                     sqlCommand.Parameters.AddWithValue("@PASSWORD", usuario.PASSWORD);
-                    sqlCommand.Parameters.AddWithValue("@ROL", usuario.ROL);                   
+                    sqlCommand.Parameters.AddWithValue("@ROL", 0);                   
 
                     sqlConnection.Open();
 
@@ -135,10 +128,43 @@ namespace WebApiSegura.Controllers
             return Ok(usuario);
         }
 
+        private Usuario ValidarUsuario(LoginRequest loginRequest)
+        {
+            Usuario usuario = new Usuario();
 
+            using (SqlConnection sqlConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["SIUUU"].ConnectionString))
+            {
+                SqlCommand sqlCommand = new SqlCommand(@"SELECT USUARIO_ID, NOMBRE, APELLIDOS, 
+                                                        IDENTIFICACION, TELEFONO, DIRECCION, EMAIL, PASSWORD, ROL
+                                                        FROM USUARIO
+                                                        WHERE EMAIL = @EMAIL", sqlConnection);
+                sqlCommand.Parameters.AddWithValue("@EMAIL", loginRequest.Correo);
 
+                sqlConnection.Open();
 
+                SqlDataReader sqlDataReader = sqlCommand.ExecuteReader();
 
+                while (sqlDataReader.Read())
+                {
+                    if (loginRequest.Password.Equals(sqlDataReader.GetString(7)))
+                    {
+                        usuario.USUARIO_ID = sqlDataReader.GetInt32(0);
+                        usuario.NOMBRE = sqlDataReader.GetString(1);
+                        usuario.APELLIDOS = sqlDataReader.GetString(2);
+                        usuario.IDENTIFICACION = sqlDataReader.GetString(3);
+                        usuario.TELEFONO = sqlDataReader.GetInt32(4);
+                        usuario.DIRECCION = sqlDataReader.GetString(5);
+                        usuario.EMAIL = sqlDataReader.GetString(6);
+                        usuario.PASSWORD = sqlDataReader.GetString(7);
+                        usuario.ROL = sqlDataReader.GetInt32(8);
+
+                    }
+                }
+
+                sqlConnection.Close();
+            }
+            return usuario;
+        }
 
     }
 }
