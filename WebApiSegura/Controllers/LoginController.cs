@@ -73,8 +73,6 @@ namespace WebApiSegura.Controllers
             Usuario usuarioValidado = ValidarUsuario(login);
             if (!string.IsNullOrEmpty(usuarioValidado.IDENTIFICACION))
             {
-                var token = TokenGenerator.GenerateTokenJwt(login.Correo);
-                usuarioValidado.CadenaToken = token;
                 return Ok(usuarioValidado);
             }
             else

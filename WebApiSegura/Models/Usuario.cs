@@ -18,6 +18,5 @@ namespace WebApiSegura.Models
         public string PASSWORD { get; set; }
         public int ROL { get; set; }
 
-        public string CadenaToken { set; get; }
     }
 }
