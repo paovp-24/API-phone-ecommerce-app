@@ -12,7 +12,7 @@ namespace WebApiSegura.Models
         public string DETALLES { get; set; }
         public string IMAGEN { get; set; }
         public string GARANTIA { get; set; }
-        public double PRECIO { get; set; }
+        public decimal PRECIO { get; set; }
         public int STOCK { get; set; }
 
     }

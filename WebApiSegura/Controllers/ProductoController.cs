@@ -10,70 +10,72 @@ using WebApiSegura.Models;
 
 namespace WebApiSegura.Controllers
 {
-        [Authorize]
-        [RoutePrefix("api/producto")]
+    [AllowAnonymous]
+    [RoutePrefix("api/producto")]
         public class ProductoController : ApiController
         {
-            [HttpGet]
-            public IHttpActionResult GetId(int id)
+            //[HttpGet]
+            //public IHttpActionResult GetId(int id)
+            //{
+            //    Producto producto = new Producto();
+
+            //    try
+            //    {
+            //        using (SqlConnection sqlConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["SIUUU"].ConnectionString))
+            //        {
+            //            SqlCommand sqlCommand = new SqlCommand(@"SELECT PRODUCTO_ID, NOMBRE, DETALLES, IMAGEN, 
+            //                                                    GARANTIA, PRECIO, STOCK FROM FACTURA
+            //                                                    WHERE PRODUCTO_ID = @PRODUCTO_ID", sqlConnection);
+
+            //            sqlCommand.Parameters.AddWithValue("@PRODUCTO_ID", id);
+
+            //            sqlConnection.Open();
+
+            //            SqlDataReader sqlDataReader = sqlCommand.ExecuteReader();
+
+            //            while (sqlDataReader.Read())
+            //            {
+            //            producto.PRODUCTO_ID = sqlDataReader.GetInt32(0);
+            //            producto.NOMBRE = sqlDataReader.GetString(1);
+            //            producto.DETALLES = sqlDataReader.GetString(2);
+            //            producto.IMAGEN = sqlDataReader.GetString(3);
+            //            producto.GARANTIA = sqlDataReader.GetString(4);
+            //            producto.PRECIO = sqlDataReader.GetDecimal(5);
+            //            producto.STOCK = sqlDataReader.GetInt32(6);
+
+            //        }
+
+            //            sqlConnection.Close();
+            //        }
+
+            //    }
+            //    catch (Exception)
+            //    {
+
+            //        throw;
+            //    }
+            //    return Ok(producto);
+            //}
+
+
+        [HttpGet]
+        [Route("allProducts")]
+        public IHttpActionResult GetAll()
+        {
+            List<Producto> Productos = new List<Producto>();
+            try
             {
-                Producto producto = new Producto();
-
-                try
+                using (SqlConnection sqlConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["SIUUU"].ConnectionString))
                 {
-                    using (SqlConnection sqlConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["SIUUU"].ConnectionString))
-                    {
-                        SqlCommand sqlCommand = new SqlCommand(@"SELECT PRODUCTO_ID, NOMBRE, DETALLES, IMAGEN, 
-                                                                GARANTIA, PRECIO, STOCK FROM FACTURA
-                                                                WHERE PRODUCTO_ID = @PRODUCTO_ID", sqlConnection);
-
-                        sqlCommand.Parameters.AddWithValue("@PRODUCTO_ID", id);
-
-                        sqlConnection.Open();
-
-                        SqlDataReader sqlDataReader = sqlCommand.ExecuteReader();
-
-                        while (sqlDataReader.Read())
-                        {
-                        producto.PRODUCTO_ID = sqlDataReader.GetInt32(0);
-                        producto.NOMBRE = sqlDataReader.GetString(1);
-                        producto.DETALLES = sqlDataReader.GetString(2);
-                        producto.IMAGEN = sqlDataReader.GetString(3);
-                        producto.GARANTIA = sqlDataReader.GetString(4);
-                        producto.PRECIO = sqlDataReader.GetDouble(5);
-                        producto.STOCK = sqlDataReader.GetInt32(6);
-
-                    }
-
-                        sqlConnection.Close();
-                    }
-
-                }
-                catch (Exception)
-                {
-
-                    throw;
-                }
-                return Ok(producto);
-            }
-
-            [HttpGet]
-            public IHttpActionResult GetAll()
-            {
-                List<Producto> productos = new List<Producto>();
-                try
-                {
-                    using (SqlConnection sqlConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["SIUUU"].ConnectionString))
-                    {
-                        SqlCommand sqlCommand = new SqlCommand(@"SELECT PRODUCTO_ID, NOMBRE, DETALLES,
+                    SqlCommand sqlCommand = new SqlCommand(@"SELECT PRODUCTO_ID, NOMBRE, DETALLES,
                                                                  IMAGEN, GARANTIA, PRECIO, STOCK FROM PRODUCTO", sqlConnection);
 
-                        sqlConnection.Open();
+                    sqlConnection.Open();
 
-                        SqlDataReader sqlDataReader = sqlCommand.ExecuteReader();
+                    SqlDataReader sqlDataReader = sqlCommand.ExecuteReader();
 
-                        while (sqlDataReader.Read())
-                        {
+                    while (sqlDataReader.Read())
+                    {
 
                         Producto producto = new Producto()
                         {
@@ -82,30 +84,26 @@ namespace WebApiSegura.Controllers
                             DETALLES = sqlDataReader.GetString(2),
                             IMAGEN = sqlDataReader.GetString(3),
                             GARANTIA = sqlDataReader.GetString(4),
-                            PRECIO = sqlDataReader.GetDouble(5),
+                            PRECIO = sqlDataReader.GetDecimal(5),
                             STOCK = sqlDataReader.GetInt32(6),
 
                         };
-
-                        productos.Add(producto);
-                        }
-
-
-                        sqlConnection.Close();
+                        Productos.Add(producto);
                     }
 
-                }
-                catch (Exception)
-                {
-
-                    throw;
+                    sqlConnection.Close();
                 }
 
-
-                return Ok(productos);
             }
+            catch (Exception)
+            {
 
-            [HttpPost]
+                throw;
+            }
+            return Ok(Productos);
+        }
+
+        [HttpPost]
             public IHttpActionResult Ingresar(Producto producto)
             {
                 if (producto == null)
