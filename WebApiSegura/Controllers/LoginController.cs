@@ -16,7 +16,11 @@ namespace WebApiSegura.Controllers
     [RoutePrefix("api/login")]
     public class LoginController : ApiController
     {
+        //====================================================
+        //GET
+        //====================================================
 
+        //Consigue todos los usuarios
         [HttpGet]
         [Route("allUser")]
         public IHttpActionResult GetAll()
@@ -63,6 +67,9 @@ namespace WebApiSegura.Controllers
             return Ok(usuarios);
         }
 
+        //====================================================
+        //POST
+        //====================================================
         [HttpPost]
         [Route("authenticate")]
         public IHttpActionResult Authenticate(LoginRequest login)
@@ -126,8 +133,13 @@ namespace WebApiSegura.Controllers
             return Ok(usuario);
         }
 
+        //====================================================
+        //Metodos
+        //====================================================
+
         private Usuario ValidarUsuario(LoginRequest loginRequest)
         {
+
             Usuario usuario = new Usuario();
 
             using (SqlConnection sqlConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["SIUUU"].ConnectionString))
@@ -161,8 +173,11 @@ namespace WebApiSegura.Controllers
 
                 sqlConnection.Close();
             }
+
             return usuario;
+                  
         }
 
     }
+
 }

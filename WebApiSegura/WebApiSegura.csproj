@@ -236,7 +236,7 @@
     <Compile Include="Controllers\FacturaController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\LoginController.cs" />
-    <Compile Include="Controllers\PlanController.cs" />
+    <Compile Include="Controllers\CuotaController.cs" />
     <Compile Include="Controllers\ProductoController.cs" />
     <Compile Include="Controllers\TokenGenerator.cs" />
     <Compile Include="Controllers\TokenValidationHandler.cs" />
@@ -246,7 +246,7 @@
     <Compile Include="Models\Compra_producto.cs" />
     <Compile Include="Models\Factura.cs" />
     <Compile Include="Models\LoginRequest.cs" />
-    <Compile Include="Models\Plan.cs" />
+    <Compile Include="Models\Cuota.cs" />
     <Compile Include="Models\Producto.cs" />
     <Compile Include="Models\Usuario.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
