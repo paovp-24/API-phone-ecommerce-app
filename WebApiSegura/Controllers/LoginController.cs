@@ -25,7 +25,7 @@ namespace WebApiSegura.Controllers
         [Route("getID")]
         public IHttpActionResult GetId(string correo, string clave)
         {
-            UsuarioId usuario = new UsuarioId();
+            Usuario usuario = new Usuario();
 
             try
             {
@@ -36,15 +36,13 @@ namespace WebApiSegura.Controllers
                     sqlCommand.Parameters.AddWithValue("@EMAIL", correo);
                     sqlCommand.Parameters.AddWithValue("@PASSWORD", clave);
 
-
-
                     sqlConnection.Open();
 
                     SqlDataReader sqlDataReader = sqlCommand.ExecuteReader();
 
                     while (sqlDataReader.Read())
                     {
-                        usuario.usuario_Id = sqlDataReader.GetInt32(0);
+                        usuario.USUARIO_ID = sqlDataReader.GetInt32(0);
 
                     }
 
