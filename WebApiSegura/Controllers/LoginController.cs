@@ -58,7 +58,6 @@ namespace WebApiSegura.Controllers
             return Ok(usuario);
         }
 
-
         //Consigue todos los usuarios
         [HttpGet]
         [Route("allUser")]

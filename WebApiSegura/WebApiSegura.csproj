@@ -249,7 +249,6 @@
     <Compile Include="Models\Cuota.cs" />
     <Compile Include="Models\Producto.cs" />
     <Compile Include="Models\Usuario.cs" />
-    <Compile Include="Models\UsuarioId.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -56,7 +56,42 @@ namespace WebApiSegura.Controllers
                 return Ok(factura);
             }
 
-            [HttpGet]
+        [HttpGet]
+        [Route("getLastID")]
+        public IHttpActionResult getLatestId()
+        {
+            Factura factura = new Factura();
+
+            try
+            {
+                using (SqlConnection sqlConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["SIUUU"].ConnectionString))
+                {
+                    SqlCommand sqlCommand = new SqlCommand(@"SELECT FACTURA_ID FROM FACTURA WHERE FACTURA_ID = (SELECT IDENT_CURRENT('FACTURA'))", sqlConnection);
+
+                    sqlConnection.Open();
+
+                    SqlDataReader sqlDataReader = sqlCommand.ExecuteReader();
+
+                    while (sqlDataReader.Read())
+                    {
+                        factura.FACTURA_ID = sqlDataReader.GetInt32(0);
+
+                    }
+
+                    sqlConnection.Close();
+                }
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            return Ok(factura);
+        }
+
+
+        [HttpGet]
             public IHttpActionResult GetAll()
             {
                 List<Factura> facturas = new List<Factura>();
@@ -100,6 +135,10 @@ namespace WebApiSegura.Controllers
 
                 return Ok(facturas);
             }
+
+            
+            
+            
 
             [HttpPost]
             public IHttpActionResult Ingresar(Factura factura)
