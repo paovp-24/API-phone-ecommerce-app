@@ -10,7 +10,7 @@ using WebApiSegura.Models;
 
 namespace WebApiSegura.Controllers
 {
-    [Authorize]
+    [AllowAnonymous]
     [RoutePrefix("api/compra_producto")]
     public class Compra_productoController : ApiController
     {

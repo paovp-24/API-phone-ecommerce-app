@@ -20,6 +20,47 @@ namespace WebApiSegura.Controllers
         //GET
         //====================================================
 
+        //Consigue el usuarioID por correo y clave iguales
+        [HttpGet]
+        [Route("getID")]
+        public IHttpActionResult GetId(string correo, string clave)
+        {
+            UsuarioId usuario = new UsuarioId();
+
+            try
+            {
+                using (SqlConnection sqlConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["SIUUU"].ConnectionString))
+                {
+                    SqlCommand sqlCommand = new SqlCommand(@"SELECT USUARIO_ID FROM USUARIO WHERE EMAIL = @EMAIL AND PASSWORD = @PASSWORD ", sqlConnection);
+
+                    sqlCommand.Parameters.AddWithValue("@EMAIL", correo);
+                    sqlCommand.Parameters.AddWithValue("@PASSWORD", clave);
+
+
+
+                    sqlConnection.Open();
+
+                    SqlDataReader sqlDataReader = sqlCommand.ExecuteReader();
+
+                    while (sqlDataReader.Read())
+                    {
+                        usuario.usuario_Id = sqlDataReader.GetInt32(0);
+
+                    }
+
+                    sqlConnection.Close();
+                }
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            return Ok(usuario);
+        }
+
+
         //Consigue todos los usuarios
         [HttpGet]
         [Route("allUser")]

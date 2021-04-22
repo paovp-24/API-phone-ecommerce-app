@@ -10,7 +10,7 @@ using WebApiSegura.Models;
 
 namespace WebApiSegura.Controllers
 {
-    [Authorize]
+    [AllowAnonymous]
     [RoutePrefix("api/factura")]
     public class FacturaController : ApiController
     {
