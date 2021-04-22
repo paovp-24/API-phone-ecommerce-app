@@ -172,8 +172,55 @@ namespace WebApiSegura.Controllers
         }
 
         //====================================================
+        //PUT
+        //====================================================
+
+        [HttpPut]
+        [Route("actualizarUser")]
+        public IHttpActionResult Actualizar(LoginRequest login)
+        {
+            if (login == null)
+                return BadRequest();
+
+            if (ActualizarUsuario(login))
+                return Ok(login);
+            else
+                return InternalServerError();
+        }
+
+        private bool ActualizarUsuario(LoginRequest login)
+        {
+            bool resultado = false;
+
+            using (SqlConnection sqlConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["SIUUU"].ConnectionString))
+            {
+                SqlCommand sqlCommand = new SqlCommand(@"UPDATE USUARIO SET PASSWORD = @PASSWORD WHERE EMAIL = @EMAIL", sqlConnection);
+
+                sqlCommand.Parameters.AddWithValue("@EMAIL", login.Correo);
+                sqlCommand.Parameters.AddWithValue("@PASSWORD", login.Password);
+
+                sqlConnection.Open();
+
+                int filasAfectadas = sqlCommand.ExecuteNonQuery();
+                if (filasAfectadas > 0)
+                    resultado = true;
+
+                sqlConnection.Close();
+            }
+
+            return resultado;
+
+        }
+
+
+
+
+
+
+        //====================================================
         //Metodos
         //====================================================
+
 
         private Usuario ValidarUsuario(LoginRequest loginRequest)
         {
