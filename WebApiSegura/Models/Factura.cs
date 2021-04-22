@@ -13,5 +13,6 @@ namespace WebApiSegura.Models
         public double MONTO_FACTURA { get; set; }
         public int CANT_PRODUCTOS { get; set; }
         public string ESTADO { get; set; }
+        public double PAGO_MENSUAL { get; set; }
     }
 }

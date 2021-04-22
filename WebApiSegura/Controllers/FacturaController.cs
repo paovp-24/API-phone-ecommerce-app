@@ -24,7 +24,7 @@ namespace WebApiSegura.Controllers
                     using (SqlConnection sqlConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["SIUUU"].ConnectionString))
                     {
                         SqlCommand sqlCommand = new SqlCommand(@"SELECT FACTURA_ID, USUARIO_ID, PLAN_ID, MONTO_FACTURA, 
-                                                                CANT_PRODUCTOS, ESTADO FROM FACTURA
+                                                                CANT_PRODUCTOS, ESTADO, PAGO_MENSUAL FROM FACTURA
                                                                 WHERE FACTURA_ID = @FACTURA_ID", sqlConnection);
 
                         sqlCommand.Parameters.AddWithValue("@FACTURA_ID", id);
@@ -41,8 +41,9 @@ namespace WebApiSegura.Controllers
                             factura.MONTO_FACTURA = sqlDataReader.GetDouble(3);
                             factura.CANT_PRODUCTOS = sqlDataReader.GetInt32(4);
                             factura.ESTADO = sqlDataReader.GetString(5);
+                            factura.PAGO_MENSUAL = sqlDataReader.GetDouble(6);
 
-                        }
+                    }
 
                         sqlConnection.Close();
                     }
@@ -100,7 +101,7 @@ namespace WebApiSegura.Controllers
                     using (SqlConnection sqlConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["SIUUU"].ConnectionString))
                     {
                         SqlCommand sqlCommand = new SqlCommand(@"SELECT FACTURA_ID, USUARIO_ID, PLAN_ID,
-                                                                 MONTO_FACTURA, CANT_PRODUCTOS, ESTADO FROM FACTURA", sqlConnection);
+                                                                 MONTO_FACTURA, CANT_PRODUCTOS, ESTADO, PAGO_MENSUAL FROM FACTURA", sqlConnection);
 
                         sqlConnection.Open();
 
@@ -115,8 +116,9 @@ namespace WebApiSegura.Controllers
                                 PLAN_ID = sqlDataReader.GetInt32(2),
                                 MONTO_FACTURA = sqlDataReader.GetDouble(3),
                                 CANT_PRODUCTOS = sqlDataReader.GetInt32(4),
-                                ESTADO = sqlDataReader.GetString(5)
-                            };
+                                ESTADO = sqlDataReader.GetString(5),
+                                PAGO_MENSUAL = sqlDataReader.GetDouble(6)
+                    };
 
                             facturas.Add(factura);
                         }
@@ -158,17 +160,18 @@ namespace WebApiSegura.Controllers
 
                 using (SqlConnection sqlConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["SIUUU"].ConnectionString))
                 {
-                    SqlCommand sqlCommand = new SqlCommand(@"INSERT INTO FACTURA (USUARIO_ID, PLAN_ID, MONTO_FACTURA, CANT_PRODUCTOS, ESTADO) 
-                                                            VALUES (@USUARIO_ID, @PLAN_ID, @MONTO_FACTURA, @CANT_PRODUCTOS, @ESTADO)", sqlConnection);
+                    SqlCommand sqlCommand = new SqlCommand(@"INSERT INTO FACTURA (USUARIO_ID, PLAN_ID, MONTO_FACTURA, CANT_PRODUCTOS, ESTADO, PAGO_MENSUAL) 
+                                                            VALUES (@USUARIO_ID, @PLAN_ID, @MONTO_FACTURA, @CANT_PRODUCTOS, @ESTADO, @PAGO_MENSUAL)", sqlConnection);
 
                     sqlCommand.Parameters.AddWithValue("@USUARIO_ID", factura.USUARIO_ID);
                     sqlCommand.Parameters.AddWithValue("@PLAN_ID", factura.PLAN_ID);
                     sqlCommand.Parameters.AddWithValue("@MONTO_FACTURA", factura.MONTO_FACTURA);
                     sqlCommand.Parameters.AddWithValue("@CANT_PRODUCTOS", factura.CANT_PRODUCTOS);
                     sqlCommand.Parameters.AddWithValue("@ESTADO", factura.ESTADO);
+                    sqlCommand.Parameters.AddWithValue("@PAGO_MENSUAL", factura.PAGO_MENSUAL);
 
 
-                    sqlConnection.Open();
+                sqlConnection.Open();
 
                     int filasAfectadas = sqlCommand.ExecuteNonQuery();
                     if (filasAfectadas > 0)
@@ -204,6 +207,7 @@ namespace WebApiSegura.Controllers
                                                                                 MONTO_FACTURA = @MONTO_FACTURA
                                                                                 CANT_PRODUCTOS = @CANT_PRODUCTOS
                                                                                 ESTADO = @ESTADO
+                                                                                PAGO_MENSUAL = @PAGO_MENSUAL
                                                                                 WHERE FACTURA_ID = @FACTURA_ID", sqlConnection);
 
                     sqlCommand.Parameters.AddWithValue("@FACTURA_ID", factura.FACTURA_ID);
@@ -212,8 +216,9 @@ namespace WebApiSegura.Controllers
                     sqlCommand.Parameters.AddWithValue("@MONTO_FACTURA", factura.MONTO_FACTURA);
                     sqlCommand.Parameters.AddWithValue("@CANT_PRODUCTOS", factura.CANT_PRODUCTOS);
                     sqlCommand.Parameters.AddWithValue("@ESTADO", factura.ESTADO);
+                    sqlCommand.Parameters.AddWithValue("@PAGO_MENSUAL", factura.PAGO_MENSUAL);
 
-                    sqlConnection.Open();
+                sqlConnection.Open();
 
                     int filasAfectadas = sqlCommand.ExecuteNonQuery();
                     if (filasAfectadas > 0)
