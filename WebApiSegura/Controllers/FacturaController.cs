@@ -101,7 +101,8 @@ namespace WebApiSegura.Controllers
                     using (SqlConnection sqlConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["SIUUU"].ConnectionString))
                     {
                         SqlCommand sqlCommand = new SqlCommand(@"SELECT FACTURA_ID, USUARIO_ID, PLAN_ID,
-                                                                 MONTO_FACTURA, CANT_PRODUCTOS, ESTADO, PAGO_MENSUAL FROM FACTURA", sqlConnection);
+                                                                 MONTO_FACTURA, CANT_PRODUCTOS, PAGO_MENSUAL FROM FACTURA
+                                                                 USUARIO_ID = @USUARIO_ID   ", sqlConnection);
 
                         sqlConnection.Open();
 
