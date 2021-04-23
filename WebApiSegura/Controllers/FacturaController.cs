@@ -38,10 +38,10 @@ namespace WebApiSegura.Controllers
                             factura.FACTURA_ID = sqlDataReader.GetInt32(0);
                             factura.USUARIO_ID = sqlDataReader.GetInt32(1);
                             factura.PLAN_ID = sqlDataReader.GetInt32(2);
-                            factura.MONTO_FACTURA = sqlDataReader.GetDouble(3);
+                            factura.MONTO_FACTURA = sqlDataReader.GetDecimal(3);
                             factura.CANT_PRODUCTOS = sqlDataReader.GetInt32(4);
                             factura.ESTADO = sqlDataReader.GetString(5);
-                            factura.PAGO_MENSUAL = sqlDataReader.GetDouble(6);
+                            factura.PAGO_MENSUAL = sqlDataReader.GetDecimal(6);
 
                     }
 
@@ -93,7 +93,8 @@ namespace WebApiSegura.Controllers
 
 
         [HttpGet]
-            public IHttpActionResult GetAll()
+        [Route("obtenerFacturas")]
+            public IHttpActionResult getAllFacturas(int usuarioID)
             {
                 List<Factura> facturas = new List<Factura>();
                 try
@@ -101,10 +102,13 @@ namespace WebApiSegura.Controllers
                     using (SqlConnection sqlConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["SIUUU"].ConnectionString))
                     {
                         SqlCommand sqlCommand = new SqlCommand(@"SELECT FACTURA_ID, USUARIO_ID, PLAN_ID,
-                                                                 MONTO_FACTURA, CANT_PRODUCTOS, PAGO_MENSUAL FROM FACTURA
-                                                                 USUARIO_ID = @USUARIO_ID   ", sqlConnection);
+                                                                 MONTO_FACTURA, CANT_PRODUCTOS, ESTADO, PAGO_MENSUAL FROM FACTURA
+                                                                 WHERE USUARIO_ID = @USUARIO_ID AND ESTADO = '1'", sqlConnection);
+                        
+                        sqlCommand.Parameters.AddWithValue("@USUARIO_ID", usuarioID);
 
-                        sqlConnection.Open();
+
+                    sqlConnection.Open();
 
                         SqlDataReader sqlDataReader = sqlCommand.ExecuteReader();
 
@@ -115,11 +119,11 @@ namespace WebApiSegura.Controllers
                                 FACTURA_ID = sqlDataReader.GetInt32(0),
                                 USUARIO_ID = sqlDataReader.GetInt32(1),
                                 PLAN_ID = sqlDataReader.GetInt32(2),
-                                MONTO_FACTURA = sqlDataReader.GetDouble(3),
+                                MONTO_FACTURA = sqlDataReader.GetDecimal(3),
                                 CANT_PRODUCTOS = sqlDataReader.GetInt32(4),
                                 ESTADO = sqlDataReader.GetString(5),
-                                PAGO_MENSUAL = sqlDataReader.GetDouble(6)
-                    };
+                                PAGO_MENSUAL = sqlDataReader.GetDecimal(6)
+                            };
 
                             facturas.Add(factura);
                         }
@@ -185,8 +189,51 @@ namespace WebApiSegura.Controllers
 
             }
 
-            [HttpPut]
-            public IHttpActionResult Actualizar(Factura factura)
+        [HttpPut]
+        [Route("actualizarMonto")]
+        public IHttpActionResult ActualizarMontoFactura(Factura factura)
+        {
+            if (factura == null)
+                return BadRequest();
+
+            if (pagarMensualidad(factura))
+                return Ok(factura);
+            else
+                return InternalServerError();
+        }
+
+        private bool pagarMensualidad(Factura factura)
+        {
+            bool resultado = false;
+
+            using (SqlConnection sqlConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["SIUUU"].ConnectionString))
+            {
+                SqlCommand sqlCommand = new SqlCommand(@"UPDATE FACTURA SET MONTO_FACTURA = @MONTO_FACTURA
+                                                                                WHERE FACTURA_ID = @FACTURA_ID", sqlConnection);
+
+                sqlCommand.Parameters.AddWithValue("@MONTO_FACTURA", factura.MONTO_FACTURA);
+                sqlCommand.Parameters.AddWithValue("@FACTURA_ID", factura.FACTURA_ID);
+
+
+                sqlConnection.Open();
+
+                int filasAfectadas = sqlCommand.ExecuteNonQuery();
+                if (filasAfectadas > 0)
+                    resultado = true;
+
+                sqlConnection.Close();
+            }
+
+            return resultado;
+
+        }
+
+
+
+
+        [HttpPut]
+            [Route("actualizarEstado")]
+            public IHttpActionResult ActualizarEstadoFactura(Factura factura)
             {
                 if (factura == null)
                     return BadRequest();
@@ -203,21 +250,12 @@ namespace WebApiSegura.Controllers
 
                 using (SqlConnection sqlConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["SIUUU"].ConnectionString))
                 {
-                    SqlCommand sqlCommand = new SqlCommand(@"UPDATE FACTURA SET USUARIO_ID = @USUARIO_ID,
-                                                                                PLAN_ID = @PLAN_ID 
-                                                                                MONTO_FACTURA = @MONTO_FACTURA
-                                                                                CANT_PRODUCTOS = @CANT_PRODUCTOS
-                                                                                ESTADO = @ESTADO
-                                                                                PAGO_MENSUAL = @PAGO_MENSUAL
+                    SqlCommand sqlCommand = new SqlCommand(@"UPDATE FACTURA SET ESTADO = @ESTADO
                                                                                 WHERE FACTURA_ID = @FACTURA_ID", sqlConnection);
 
                     sqlCommand.Parameters.AddWithValue("@FACTURA_ID", factura.FACTURA_ID);
-                    sqlCommand.Parameters.AddWithValue("@USUARIO_ID", factura.USUARIO_ID);
-                    sqlCommand.Parameters.AddWithValue("@PLAN_ID", factura.PLAN_ID);
-                    sqlCommand.Parameters.AddWithValue("@MONTO_FACTURA", factura.MONTO_FACTURA);
-                    sqlCommand.Parameters.AddWithValue("@CANT_PRODUCTOS", factura.CANT_PRODUCTOS);
-                    sqlCommand.Parameters.AddWithValue("@ESTADO", factura.ESTADO);
-                    sqlCommand.Parameters.AddWithValue("@PAGO_MENSUAL", factura.PAGO_MENSUAL);
+                    sqlCommand.Parameters.AddWithValue("@ESTADO", 0);
+
 
                 sqlConnection.Open();
 
